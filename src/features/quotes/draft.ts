@@ -217,14 +217,14 @@ function issueMessage(issue: ZodIssue): string {
   const key = issue.path.join('.')
   if (FIELD_MESSAGES[key]) return FIELD_MESSAGES[key]
   const field = String(issue.path[issue.path.length - 1] ?? '')
-  if (issue.code === 'too_small' && issue.type === 'string') return 'Este campo es obligatorio.'
-  if (issue.code === 'too_small' && issue.type === 'number') return 'Debe ser mayor que 0.'
-  if (issue.code === 'invalid_string' && issue.validation === 'email') return 'Escribe un correo válido.'
-  if (issue.code === 'invalid_string' && issue.validation === 'url') return 'Escribe una URL válida (https://…).'
-  if (issue.code === 'invalid_string' && issue.validation === 'regex') {
+  if (issue.code === 'too_small' && issue.origin === 'string') return 'Este campo es obligatorio.'
+  if (issue.code === 'too_small' && issue.origin === 'number') return 'Debe ser mayor que 0.'
+  if (issue.code === 'invalid_format' && issue.format === 'email') return 'Escribe un correo válido.'
+  if (issue.code === 'invalid_format' && issue.format === 'url') return 'Escribe una URL válida (https://…).'
+  if (issue.code === 'invalid_format' && issue.format === 'regex') {
     return field === 'unitPrice' ? 'Escribe un precio válido.' : 'Usa un porcentaje válido (hasta 2 decimales).'
   }
-  if (issue.code === 'invalid_string' && (issue.validation === 'date' || issue.validation === 'datetime')) return 'Selecciona una fecha válida.'
+  if (issue.code === 'invalid_format' && (issue.format === 'date' || issue.format === 'datetime')) return 'Selecciona una fecha válida.'
   return 'Revisa este campo.'
 }
 

@@ -19,7 +19,7 @@ const percentage = decimal.refine((value) => Number(value) <= 100, { message: 'p
 /** Rechaza arreglos sobredimensionados antes de recorrer sus elementos. */
 const boundedArray = <T>(item: z.ZodType<T>, max: number) => z.preprocess((value, context) => {
   if (Array.isArray(value) && value.length > max) {
-    context.addIssue({ code: z.ZodIssueCode.too_big, maximum: max, type: 'array', inclusive: true })
+    context.addIssue({ code: z.ZodIssueCode.too_big, maximum: max, origin: 'array', inclusive: true })
     return z.NEVER
   }
   return value
