@@ -4,7 +4,7 @@ import { useServices } from '@/app/services'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { QuoteDocument } from './QuoteDocument'
-import { downloadPdf } from '@/services/pdf'
+import { downloadPdf } from '@/services/pdf-download'
 import { toast } from 'sonner'
 import { useState } from 'react'
 
