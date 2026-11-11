@@ -36,6 +36,17 @@ describe('BackupService', () => {
     const clients = Array.from({ length: 10_001 }, (_, index) => ({ ...client, id: `11111111-1111-4111-8111-${String(index).padStart(12, '0')}` }))
     expect(() => validateBackupPayload({ ...payload, clients })).toThrow(BackupValidationError)
     expect(() => validateBackupPayload({ ...payload, clients: [client, client] })).toThrow('duplicados')
+    expect(() => validateBackupPayload({ ...payload, quotes: [{ ...quote, items: [quote.items[0], { ...quote.items[0] }] }] })).toThrow('duplicados')
+  })
+
+  it('permite repetir el identificador de una partida en cotizaciones diferentes y conserva ambas relaciones', async () => {
+    const secondQuote = { ...quote, id: '44444444-4444-4444-8444-444444444444', number: 'COT-0002' }
+    const compatiblePayload = { ...payload, quotes: [quote, secondQuote] }
+
+    expect(validateBackupPayload(compatiblePayload).quotes).toHaveLength(2)
+    await new DexieBackupService().restore(compatiblePayload)
+    expect(await database.quotes.get(quote.id)).toEqual(quote)
+    expect(await database.quotes.get(secondQuote.id)).toEqual(secondQuote)
   })
 
   it('rechaza un archivo por tamaño antes de leerlo', async () => {

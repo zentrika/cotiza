@@ -25,10 +25,9 @@ export function validateBackupPayload(input: unknown): BackupPayload {
   uniqueIds(payload.clients.map((client) => client.id), 'clientes')
   uniqueIds(payload.quotes.map((quote) => quote.id), 'cotizaciones')
   const clientIds = new Set(payload.clients.map((client) => client.id))
-  const itemIds = payload.quotes.flatMap((quote) => quote.items.map((item) => item.id))
-  uniqueIds(itemIds, 'partidas')
   for (const quote of payload.quotes) {
     if (!clientIds.has(quote.clientId)) throw new BackupValidationError(`La cotización ${quote.number} referencia un cliente inexistente.`)
+    uniqueIds(quote.items.map((item) => item.id), `partidas de la cotización ${quote.number}`)
   }
   return structuredClone(payload)
 }

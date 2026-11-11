@@ -11,8 +11,10 @@ const PAGE_HEIGHT = 792
 const MARGIN = 48
 const INK = rgb(0.09, 0.1, 0.15)
 const MUTED = rgb(0.36, 0.38, 0.44)
-const COPPER = rgb(0.72, 0.25, 0.12)
-const LIGHT = rgb(0.93, 0.92, 0.89)
+const BRAND_PRIMARY = rgb(0x2a / 255, 0x66 / 255, 0xff / 255)
+const BRAND_SECONDARY = rgb(0x3b / 255, 0x82 / 255, 0xff / 255)
+const BRAND_VIOLET = rgb(0x8b / 255, 0x5c / 255, 0xf6 / 255)
+const LIGHT = rgb(0.9, 0.94, 1)
 
 function safeText(value: string | undefined) { return value?.trim() || '' }
 function fit(value: string, font: PDFFont, size: number, width: number) {
@@ -50,12 +52,12 @@ export async function generateQuotePdf(quote: Quote, profile: BusinessProfile, c
   let y = PAGE_HEIGHT - MARGIN
 
   const header = () => {
-    page.drawRectangle({ x: 0, y: PAGE_HEIGHT - 6, width: PAGE_WIDTH * 0.7, height: 6, color: INK })
-    page.drawRectangle({ x: PAGE_WIDTH * 0.7, y: PAGE_HEIGHT - 6, width: PAGE_WIDTH * 0.3, height: 6, color: COPPER })
+    page.drawRectangle({ x: 0, y: PAGE_HEIGHT - 6, width: PAGE_WIDTH * 0.7, height: 6, color: BRAND_PRIMARY })
+    page.drawRectangle({ x: PAGE_WIDTH * 0.7, y: PAGE_HEIGHT - 6, width: PAGE_WIDTH * 0.3, height: 6, color: BRAND_SECONDARY })
     page.drawText(safeText(profile.legalName) || 'Tu negocio', { x: MARGIN, y: PAGE_HEIGHT - 54, size: 18, font: bold, color: INK })
     const contact = [profile.taxId ? `NIT / C.C. ${profile.taxId}` : '', profile.address, profile.email, profile.phone].filter(Boolean).join('  |  ')
     if (contact) page.drawText(contact, { x: MARGIN, y: PAGE_HEIGHT - 72, size: 8.5, font: regular, color: MUTED })
-    right(page, 'COTIZACION', PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 48, bold, 9, COPPER)
+    right(page, 'COTIZACIÓN', PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 48, bold, 9, BRAND_VIOLET)
     right(page, quote.number, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 67, bold, 14)
     right(page, `Emitida ${formatDate(instantToDateInput(quote.issuedAt))}`, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 85, regular, 8.5, MUTED)
     right(page, `Valida hasta ${formatDate(quote.validUntil)}`, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - 99, regular, 8.5, MUTED)
@@ -92,7 +94,7 @@ export async function generateQuotePdf(quote: Quote, profile: BusinessProfile, c
   const totalRows = [['Subtotal', money(totals.subtotal)], ['Descuentos', `- ${money(totals.discount)}`], ['Impuestos', money(totals.tax)]]
   for (const [label, value] of totalRows) { page.drawText(label, { x: PAGE_WIDTH - 220, y, size: 9, font: regular, color: MUTED }); right(page, value, PAGE_WIDTH - MARGIN, y, regular, 9); y -= 16 }
   line(page, PAGE_WIDTH - 220, y + 5, PAGE_WIDTH - MARGIN, INK, 1.5); y -= 5
-  page.drawText('Total', { x: PAGE_WIDTH - 220, y, size: 11, font: bold, color: INK }); right(page, money(totals.total), PAGE_WIDTH - MARGIN, y, bold, 16, COPPER); y -= 28
+  page.drawText('Total', { x: PAGE_WIDTH - 220, y, size: 11, font: bold, color: INK }); right(page, money(totals.total), PAGE_WIDTH - MARGIN, y, bold, 16, BRAND_PRIMARY); y -= 28
   if (quote.notes?.trim()) {
     const noteLines = wrap(quote.notes, regular, 8.5, PAGE_WIDTH - MARGIN * 2 - 20)
     const noteHeight = 30 + noteLines.length * 11
