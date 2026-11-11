@@ -21,5 +21,7 @@ Comandos de verificación: `npm run build`, `npm run lint`, `npm test` y `npm ru
 - `src/services`: contratos de servicios y adaptadores en memoria para desarrollo.
 - `src/db`: límite de persistencia Dexie; no contiene aún flujos completos de guardado.
 - `src/store`: estado de UI con Zustand.
-- `src/components/ui`: destino para primitives shadcn/ui.
-- `docs`: producto, contratos y criterios de aceptación.
+- `src/app`: shell de la aplicación, enrutador por hash, tema e inyección de servicios.
+- `src/components`: primitivas shadcn/ui (`ui/`) y componentes compartidos de marca, layout y estados.
+- `src/features`: pantallas (inicio, historial, editor, ajustes) y lógica de cotizaciones sin React.
+- `docs`: producto, contratos, criterios de aceptación y sistema de interfaz (`docs/UI.md`).

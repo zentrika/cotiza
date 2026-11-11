@@ -2,6 +2,94 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --background: 210 40% 98%; --foreground: 222 47% 11%; --border: 214 32% 91%; }
-* { border-color: hsl(var(--border)); }
-body { margin: 0; min-width: 320px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+/*
+ * Cotiza · sistema visual "papel y tinta".
+ * Superficies cálidas tipo papel, tinta azul-noche para el texto y un acento
+ * "ember" (cobre) reservado para foco, marca y el total de la cotización.
+ */
+@layer base {
+  :root {
+    --background: 40 30% 97%;
+    --foreground: 228 26% 12%;
+    --paper: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 228 26% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 26% 12%;
+    --primary: 228 26% 14%;
+    --primary-foreground: 40 30% 97%;
+    --secondary: 38 22% 92%;
+    --secondary-foreground: 228 26% 14%;
+    --muted: 38 20% 93%;
+    --muted-foreground: 228 9% 40%;
+    --accent: 38 24% 90%;
+    --accent-foreground: 228 26% 12%;
+    --destructive: 354 68% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 36 16% 86%;
+    --input: 36 14% 80%;
+    --ring: 16 80% 50%;
+    --ember: 16 80% 52%;
+    --ember-strong: 16 74% 40%;
+    --ember-soft: 22 90% 94%;
+    --shadow: 228 30% 20%;
+    --radius: 0.75rem;
+    color-scheme: light;
+  }
+
+  .dark {
+    --background: 228 22% 8%;
+    --foreground: 40 22% 93%;
+    --paper: 228 18% 12%;
+    --card: 228 19% 11%;
+    --card-foreground: 40 22% 93%;
+    --popover: 228 19% 12%;
+    --popover-foreground: 40 22% 93%;
+    --primary: 40 26% 93%;
+    --primary-foreground: 228 24% 10%;
+    --secondary: 228 15% 17%;
+    --secondary-foreground: 40 22% 93%;
+    --muted: 228 15% 15%;
+    --muted-foreground: 228 9% 64%;
+    --accent: 228 15% 18%;
+    --accent-foreground: 40 22% 93%;
+    --destructive: 354 70% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 228 14% 19%;
+    --input: 228 13% 25%;
+    --ring: 18 88% 60%;
+    --ember: 18 88% 60%;
+    --ember-strong: 20 92% 68%;
+    --ember-soft: 18 40% 16%;
+    --shadow: 228 40% 2%;
+    color-scheme: dark;
+  }
+
+  * { @apply border-border; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    @apply min-w-[320px] bg-background font-sans text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  ::selection { background: hsl(var(--ember) / 0.25); }
+
+  :focus-visible { outline: none; }
+}
+
+@layer utilities {
+  .tabular { font-variant-numeric: tabular-nums; }
+  .text-balance { text-wrap: balance; }
+  .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
