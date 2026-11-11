@@ -5,7 +5,7 @@ export const CALCULATION_RULES = { scale: 2, roundingMode: 'half-up', lineItemsR
 export const roundMoney = (value: Decimal) => value.toDecimalPlaces(CALCULATION_RULES.scale, Decimal.ROUND_HALF_UP).toFixed(2)
 
 export function calculateItem(item: QuoteItem) {
-  const gross = new Decimal(item.quantity).times(item.unitPrice)
+  const gross = new Decimal(String(item.quantity)).times(item.unitPrice)
   const discount = gross.times(item.discountPercent).div(100)
   const net = gross.minus(discount)
   const tax = net.times(item.taxPercent).div(100)
