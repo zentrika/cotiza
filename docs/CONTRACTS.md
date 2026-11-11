@@ -18,6 +18,10 @@ Las cotizaciones exponen `issuedAt` como instante ISO-8601 y `validFrom`/`validU
 
 `src/domain/schemas.ts` contiene los esquemas Zod. Un servicio debe rechazar entidades inválidas antes de persistirlas.
 
+Los límites de entrada están centralizados en `DATA_LIMITS`: nombres y títulos hasta 160 caracteres, descripciones hasta 500, observaciones hasta 5.000, direcciones hasta 300, teléfonos hasta 40, correos hasta 254, URLs de logo hasta 2.048, importes con hasta 18 dígitos enteros y 2 decimales, cantidades hasta 1.000.000 y 100 partidas por cotización. Los respaldos admiten hasta 10.000 clientes y 10.000 cotizaciones. Los límites rechazan la entrada completa; no se trunca ni se sobrescribe silenciosamente.
+
+Los arreglos se comprueban antes de recorrer sus elementos para reducir el coste de validación de entradas sobredimensionadas. Los objetos persistibles son estrictos y los servicios vuelven a validar al leer IndexedDB, porque el almacenamiento local también es una frontera no confiable.
+
 ## Servicios
 
 - `Repository<T>`: listar, obtener, guardar y eliminar entidades.

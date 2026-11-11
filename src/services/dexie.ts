@@ -12,8 +12,8 @@ function validated<T>(result: { success: boolean; data?: T; error?: unknown }): 
 
 function createRepository<T extends { id: string }>(table: Table<T, string>, schema: { safeParse(value: T): { success: boolean; data?: T; error?: unknown } }) {
   return {
-    async list() { return (await table.toArray()).map((item) => structuredClone(item)) },
-    async get(id: string) { const item = await table.get(id); return item ? structuredClone(item) : undefined },
+    async list() { return (await table.toArray()).map((item) => structuredClone(validated(schema.safeParse(item)))) },
+    async get(id: string) { const item = await table.get(id); return item ? structuredClone(validated(schema.safeParse(item))) : undefined },
     async save(entity: T) {
       const value = structuredClone(validated(schema.safeParse(entity)))
       await table.put(value)
@@ -32,7 +32,7 @@ export const dexieQuoteService: QuoteService = {
 export const dexieProfileService: ProfileService = {
   async get() {
     const profiles = await database.profiles.toArray()
-    return profiles[0] ? structuredClone(profiles[0]) : undefined
+    return profiles[0] ? structuredClone(validated(businessProfileSchema.safeParse(profiles[0]))) : undefined
   },
   async save(profile: BusinessProfile) {
     const value = structuredClone(validated(businessProfileSchema.safeParse(profile)))
