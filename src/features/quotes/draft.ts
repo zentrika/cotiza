@@ -78,35 +78,87 @@ export function duplicateQuote(source: Quote, number: string, now = new Date()):
 }
 
 /**
- * Normaliza lo que escribe la persona en un campo de importe, siguiendo la
- * convención colombiana (punto de miles, coma decimal) sin romper la entrada
- * con punto decimal:
- * - Si hay coma, la coma es decimal y los puntos son de miles: "1.500,5" → "1500.5".
- * - Varios puntos son de miles: "1.000.000" → "1000000".
- * - Un único punto seguido de 3 dígitos es de miles: "1.500" → "1500".
- * - Un único punto seguido de 1–2 dígitos es decimal: "99.9" → "99.9".
- * El resultado se limita a 2 decimales (regla del esquema).
+ * Contrato de entrada numérica del editor:
+ * - Se aceptan espacios y el símbolo `$`, pero no se descartan letras ni
+ *   otros signos: una captura inválida debe permanecer visible para que la
+ *   validación la informe.
+ * - Con ambos separadores, el último es decimal y los anteriores deben ser
+ *   agrupaciones válidas de tres dígitos.
+ * - Con un solo separador, un grupo final de tres dígitos es agrupación de
+ *   miles (`2,500` y `2.500` → `2500`). Las fracciones tienen uno o dos
+ *   dígitos (`1500,00` → `1500.00`). Esta política es explícita porque la
+ *   aplicación no mantiene una configuración regional distinta por campo y
+ *   acepta ambos estilos para facilitar la captura local e internacional.
+ * - El dominio conserva hasta dos decimales, tal como exige `quoteItemSchema`.
+ *
+ * Los formatos inválidos se devuelven sin transformarlos. Así no se convierten
+ * silenciosamente en otro importe ni se oculta el error en el formulario.
  */
 export function normalizeDecimalInput(raw: string): string {
-  let cleaned = raw.replace(/[^\d.,]/g, '')
-  if (cleaned.includes(',')) {
-    cleaned = cleaned.replace(/\./g, '')
-    const [integer, ...rest] = cleaned.split(',')
-    return rest.length === 0 ? integer : `${integer || '0'}.${rest.join('').slice(0, 2)}`
+  const cleaned = raw.trim().replace(/[ $]/g, '')
+  if (cleaned === '') return ''
+  if (!/^\d[\d.,]*$/.test(cleaned) && !/^[.,]\d[\d.,]*$/.test(cleaned)) return raw
+
+  const separators = [...cleaned].filter((char) => char === ',' || char === '.')
+  if (separators.length === 0) return cleaned
+
+  const lastSeparatorIndex = Math.max(cleaned.lastIndexOf(','), cleaned.lastIndexOf('.'))
+  const integerPart = cleaned.slice(0, lastSeparatorIndex)
+  const fractionPart = cleaned.slice(lastSeparatorIndex + 1)
+  const hasBothSeparators = cleaned.includes(',') && cleaned.includes('.')
+
+  if (hasBothSeparators) {
+    const groupingParts = integerPart.split(/[.,]/)
+    if (!/^\d{1,3}$/.test(groupingParts[0]) || groupingParts.slice(1).some((part) => !/^\d{3}$/.test(part))) return raw
+    if (!/^\d*$/.test(fractionPart)) return raw
+    return `${groupingParts.join('')}.${fractionPart.slice(0, 2)}`
   }
-  const parts = cleaned.split('.')
-  if (parts.length === 1) return cleaned
-  if (parts.length > 2 || parts[1].length === 3) {
-    const last = parts[parts.length - 1]
-    // "1.000.00" (miles + decimal tecleado con punto) conserva el último grupo como decimal.
-    if (parts.length > 2 && last.length > 0 && last.length < 3) return `${parts.slice(0, -1).join('')}.${last}`
+
+  const separator = separators[0]
+  const parts = cleaned.split(separator)
+  if (parts.length > 2) {
+    if (parts.some((part, index) => index === 0 ? !/^\d{1,3}$/.test(part) : !/^\d{3}$/.test(part))) return raw
     return parts.join('')
   }
-  return `${parts[0] || '0'}.${parts[1].slice(0, 2)}`
+
+  const [integer, fraction = ''] = parts
+  if (integer !== '' && !/^\d+$/.test(integer)) return raw
+  if (fraction.length === 3 && /^\d{1,3}$/.test(integer)) return `${integer || '0'}${fraction}`
+  if (!/^\d{0,2}$/.test(fraction)) return raw
+  return `${integer || '0'}.${fraction}`
 }
 
 export function parseQuantity(raw: string): number {
-  const value = Number(raw.replace(',', '.'))
+  const cleaned = raw.trim().replace(/[ $]/g, '')
+  if (!cleaned || !/^(?:\d[\d.,]*|[.,]\d[\d.,]*)$/.test(cleaned)) return 0
+
+  const separators = [...cleaned].filter((char) => char === ',' || char === '.')
+  if (separators.length === 0) return Number(cleaned)
+
+  const lastSeparator = Math.max(cleaned.lastIndexOf(','), cleaned.lastIndexOf('.'))
+  const integerPart = cleaned.slice(0, lastSeparator)
+  const fractionPart = cleaned.slice(lastSeparator + 1)
+  const hasBothSeparators = cleaned.includes(',') && cleaned.includes('.')
+  let canonical: string
+
+  if (hasBothSeparators) {
+    const groupingParts = integerPart.split(/[.,]/)
+    if (!/^\d{1,3}$/.test(groupingParts[0]) || groupingParts.slice(1).some((part) => !/^\d{3}$/.test(part)) || !/^\d+$/.test(fractionPart)) return 0
+    canonical = `${groupingParts.join('')}.${fractionPart}`
+  } else {
+    const parts = cleaned.split(separators[0])
+    if (parts.length > 2) {
+      if (parts.some((part, index) => index === 0 ? !/^\d{1,3}$/.test(part) : !/^\d{3}$/.test(part))) return 0
+      canonical = parts.join('')
+    } else {
+      const [integer, fraction = ''] = parts
+      if (integer !== '' && !/^\d+$/.test(integer) || !/^\d+$/.test(fraction)) return 0
+      const isThousandsGroup = fraction.length === 3 && integer !== '0' && integer.length <= 3
+      canonical = isThousandsGroup ? `${integer}${fraction}` : `${integer || '0'}.${fraction}`
+    }
+  }
+
+  const value = Number(canonical)
   return Number.isFinite(value) ? value : 0
 }
 

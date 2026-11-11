@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mockQuote } from '@/services/mocks'
-import { buildClientFromSnapshot, createDraftQuote, duplicateQuote, itemForCalculation, nextQuoteNumber, normalizeDecimalInput, validateProfile, validateQuote } from './draft'
+import { buildClientFromSnapshot, createDraftQuote, duplicateQuote, itemForCalculation, nextQuoteNumber, normalizeDecimalInput, parseQuantity, validateProfile, validateQuote } from './draft'
 
 describe('nextQuoteNumber', () => {
   it('continúa la numeración más alta', () => {
@@ -16,17 +16,29 @@ describe('normalizeDecimalInput', () => {
     ['1500000', '1500000'],
     ['1.000.000', '1000000'],
     ['1.500', '1500'],
+    ['2,500', '2500'],
     ['1.500,5', '1500.5'],
     ['1.500,555', '1500.55'],
-    ['12,345', '12.34'],
+    ['1,500.00', '1500.00'],
+    ['1.234.567,89', '1234567.89'],
+    ['1,234,567.89', '1234567.89'],
+    ['1500.00', '1500.00'],
+    ['1500,00', '1500.00'],
     ['99.9', '99.9'],
     ['99.90', '99.90'],
-    ['1.000.00', '1000.00'],
     ['$ 2.500', '2500'],
     [',5', '0.5'],
     ['19.', '19.'],
   ])('%s → %s', (raw, expected) => {
     expect(normalizeDecimalInput(raw)).toBe(expected)
+  })
+
+  it.each(['1.000.00', '1,00,0', '12,3456', 'abc', '1a2', '-1500', 'NaN', 'Infinity'])('conserva entradas inválidas para validación: %s', (raw) => {
+    expect(normalizeDecimalInput(raw)).toBe(raw)
+  })
+
+  it('conserva números grandes sin pasar por Number', () => {
+    expect(normalizeDecimalInput('9,999,999,999,999,999,999.99')).toBe('9999999999999999999.99')
   })
 })
 
@@ -34,6 +46,17 @@ describe('itemForCalculation', () => {
   it('convierte valores incompletos en importes calculables', () => {
     const item = itemForCalculation({ id: 'x', description: '', quantity: Number.NaN, unitPrice: '', discountPercent: '10.', taxPercent: 'abc' })
     expect(item).toMatchObject({ quantity: 0, unitPrice: '0', discountPercent: '10', taxPercent: '0' })
+  })
+})
+
+describe('parseQuantity', () => {
+  it.each([
+    ['1.500', 1500],
+    ['2,500', 2500],
+    ['0.125', 0.125],
+    ['2,5', 2.5],
+  ])('interpreta %s como %s', (raw, expected) => {
+    expect(parseQuantity(raw)).toBe(expected)
   })
 })
 
