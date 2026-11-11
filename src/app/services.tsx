@@ -1,7 +1,8 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import type { BusinessProfile } from '@/domain/models'
-import type { ClientService, ProfileService, QuoteService } from '@/services/contracts'
-import { mockClientService, mockQuoteService } from '@/services/mocks'
+import type { ClientService, PdfService, ProfileService, QuoteService } from '@/services/contracts'
+import { dexieClientService, dexieProfileService, dexieQuoteService } from '@/services/dexie'
+import { pdfService } from '@/services/pdf'
 
 /**
  * Punto único de inyección de servicios para la UI.
@@ -13,6 +14,7 @@ export interface AppServices {
   quotes: QuoteService
   clients: ClientService
   profile: ProfileService
+  pdf?: PdfService
 }
 
 /**
@@ -32,11 +34,7 @@ export function createInMemoryProfileService(seed?: BusinessProfile): ProfileSer
   }
 }
 
-export const defaultServices: AppServices = {
-  quotes: mockQuoteService,
-  clients: mockClientService,
-  profile: createInMemoryProfileService(),
-}
+export const defaultServices: AppServices = { quotes: dexieQuoteService, clients: dexieClientService, profile: dexieProfileService, pdf: pdfService }
 
 const ServicesContext = createContext<AppServices>(defaultServices)
 
