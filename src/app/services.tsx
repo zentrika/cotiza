@@ -3,7 +3,7 @@ import type { BusinessProfile } from '@/domain/models'
 import type { BackupService, ClientService, PdfService, ProfileService, QuoteService } from '@/services/contracts'
 import { backupService } from '@/services/backup'
 import { dexieClientService, dexieProfileService, dexieQuoteService } from '@/services/dexie'
-import { pdfService } from '@/services/pdf'
+import { lazyPdfService } from '@/services/pdf-lazy'
 
 /**
  * Punto único de inyección de servicios para la UI.
@@ -36,7 +36,7 @@ export function createInMemoryProfileService(seed?: BusinessProfile): ProfileSer
   }
 }
 
-export const defaultServices: AppServices = { quotes: dexieQuoteService, clients: dexieClientService, profile: dexieProfileService, backup: backupService, pdf: pdfService }
+export const defaultServices: AppServices = { quotes: dexieQuoteService, clients: dexieClientService, profile: dexieProfileService, backup: backupService, pdf: lazyPdfService }
 
 const ServicesContext = createContext<AppServices>(defaultServices)
 
