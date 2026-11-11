@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useFormFieldControl } from '@/components/common/FormField'
 import { inputClasses } from './input'
 
 export const Select = SelectPrimitive.Root
@@ -9,14 +10,34 @@ export const SelectValue = SelectPrimitive.Value
 export const SelectGroup = SelectPrimitive.Group
 
 export const SelectTrigger = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Trigger>, React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>>(
-  ({ className, children, ...props }, ref) => (
-    <SelectPrimitive.Trigger ref={ref} className={cn(inputClasses, 'items-center justify-between gap-2 text-left data-[placeholder]:text-muted-foreground [&>span]:truncate', className)} {...props}>
-      {children}
-      <SelectPrimitive.Icon asChild>
-        <ChevronDown className="size-4 shrink-0 opacity-60" />
-      </SelectPrimitive.Icon>
-    </SelectPrimitive.Trigger>
-  ),
+  ({ className, children, ...props }, ref) => {
+    // Dentro de un FormField, el disparador recibe id, nombre accesible (la etiqueta; el valor
+    // elegido se expone como contenido del combobox, patrón APG), aria-describedby y aria-invalid.
+    // Las props explícitas siempre tienen prioridad.
+    const field = useFormFieldControl()
+    const fieldProps = field
+      ? {
+          id: field.id,
+          'aria-labelledby': field.labelId,
+          'aria-describedby': field['aria-describedby'],
+          'aria-invalid': field['aria-invalid'],
+          'data-field-error': field['aria-invalid'] ? '' : undefined,
+        }
+      : {}
+    return (
+      <SelectPrimitive.Trigger
+        ref={ref}
+        className={cn(inputClasses, 'items-center justify-between gap-2 text-left data-[placeholder]:text-muted-foreground [&>span]:truncate', className)}
+        {...fieldProps}
+        {...props}
+      >
+        {children}
+        <SelectPrimitive.Icon asChild>
+          <ChevronDown className="size-4 shrink-0 opacity-60" aria-hidden />
+        </SelectPrimitive.Icon>
+      </SelectPrimitive.Trigger>
+    )
+  },
 )
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
@@ -49,7 +70,7 @@ export const SelectItem = React.forwardRef<React.ElementRef<typeof SelectPrimiti
     >
       <span className="absolute left-2 flex size-4 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
-          <Check className="size-4" />
+          <Check className="size-4" aria-hidden />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

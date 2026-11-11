@@ -23,10 +23,10 @@ export function QuoteRow({ quote, totals, actions, className }: { quote: Quote; 
     <li className={cn('group relative flex items-center gap-2 rounded-xl transition-colors hover:bg-accent/60 focus-within:bg-accent/60', className)}>
       <Link to={paths.quote(quote.id)} className="focus-ring grid min-w-0 flex-1 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-3 py-3 sm:grid-cols-[minmax(0,1fr)_140px_150px_110px] sm:px-4">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[12px] font-medium text-muted-foreground">{quote.number}</span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="whitespace-nowrap font-mono text-[12px] font-medium text-muted-foreground">{quote.number}</span>
             {hint && (
-              <span className={cn('inline-flex items-center gap-1 text-[11px] font-medium', hint.urgent ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground')}>
+              <span className={cn('inline-flex items-center gap-1 whitespace-nowrap text-[11px] font-medium', hint.urgent ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground')}>
                 <CalendarClock className="size-3" aria-hidden /> {hint.text}
               </span>
             )}

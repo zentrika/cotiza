@@ -115,3 +115,73 @@ describe('Ajustes', () => {
     await waitFor(async () => expect((await services.profile.get())?.email).toBe('hola@andes.co'))
   })
 })
+
+describe('Accesibilidad de selectores (DEF-02)', () => {
+  it('los selectores del editor tienen nombre accesible, etiqueta asociada y ayuda vinculada', async () => {
+    render(<App services={freshServices()} />)
+    await go('/cotizaciones/nueva')
+    const currency = await screen.findByRole('combobox', { name: /^Moneda/ })
+    expect(currency).toHaveAccessibleName('Moneda')
+    expect(currency).toHaveTextContent('COP · Peso colombiano')
+    expect(screen.getByLabelText('Moneda')).toBe(currency)
+    expect(screen.getByRole('combobox', { name: /^Cliente/ })).toBeInTheDocument()
+    const status = screen.getByRole('combobox', { name: /^Estado/ })
+    expect(status).toHaveAccessibleDescription('En preparación, aún no se ha enviado.')
+  })
+
+  it('el orden del historial tiene nombre accesible que incluye el valor', async () => {
+    render(<App services={freshServices()} />)
+    await go('/cotizaciones')
+    expect(await screen.findByRole('combobox', { name: /^Ordenar por/ })).toBeInTheDocument()
+  })
+})
+
+describe('Restauración de respaldos', () => {
+  const backupPayload = {
+    format: 'cotiza-backup',
+    schemaVersion: 1,
+    exportedAt: '2026-02-01T00:00:00.000Z',
+    clients: [structuredClone(mockClient)],
+    quotes: [
+      structuredClone(mockQuote),
+      { ...structuredClone(mockQuote), id: '00000000-0000-4000-8000-0000000000aa', number: 'COT-0002', items: [{ ...mockQuote.items[0], id: '00000000-0000-4000-8000-0000000000ab' }] },
+    ],
+  }
+
+  it('muestra qué se reemplaza y exige confirmación explícita antes de restaurar', async () => {
+    const restore = vi.fn(async () => {})
+    const services: AppServices = { ...freshServices(), backup: { create: vi.fn(), restore } }
+    render(<App services={services} />)
+    await go('/ajustes')
+    const input = await screen.findByLabelText('Seleccionar archivo de respaldo')
+    const file = new File([JSON.stringify(backupPayload)], 'respaldo.json', { type: 'application/json' })
+    await act(async () => { fireEvent.change(input, { target: { files: [file] } }) })
+
+    const dialog = await screen.findByRole('alertdialog', { name: /Reemplazar tus datos/ })
+    expect(within(dialog).getByRole('region', { name: 'Se eliminará' })).toHaveTextContent('1 cotización')
+    expect(within(dialog).getByRole('region', { name: 'Se restaurará' })).toHaveTextContent('2 cotizaciones')
+
+    const confirm = within(dialog).getByRole('button', { name: 'Reemplazar datos' })
+    expect(confirm).toBeDisabled()
+    fireEvent.click(confirm)
+    expect(restore).not.toHaveBeenCalled()
+
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: /Entiendo que mis datos actuales se reemplazarán/ }))
+    expect(confirm).toBeEnabled()
+    fireEvent.click(confirm)
+    await waitFor(() => expect(restore).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+  })
+
+  it('cancelar no restaura nada', async () => {
+    const restore = vi.fn(async () => {})
+    render(<App services={{ ...freshServices(), backup: { create: vi.fn(), restore } }} />)
+    await go('/ajustes')
+    const input = await screen.findByLabelText('Seleccionar archivo de respaldo')
+    await act(async () => { fireEvent.change(input, { target: { files: [new File([JSON.stringify(backupPayload)], 'r.json', { type: 'application/json' })] } }) })
+    const dialog = await screen.findByRole('alertdialog')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+    expect(restore).not.toHaveBeenCalled()
+  })
+})

@@ -43,7 +43,7 @@
     --destructive: 354 68% 46%;
     --destructive-foreground: 0 0% 100%;
     --border: 220 22% 88%;
-    --input: 220 18% 80%;
+    --input: 220 13% 60%;          /* ≥ 3:1 sobre la tarjeta (WCAG 1.4.11) */
     --ring: var(--zk-blue);
     --brand: var(--zk-blue);
     --brand-strong: var(--zk-blue-deep);
@@ -58,7 +58,7 @@
   }
 
   .dark {
-    --background: 218 45% 6%;
+    --background: var(--zk-obsidian); /* #080F1A, fondo oscuro oficial */
     --foreground: 220 30% 94%;
     --paper: 218 36% 10%;
     --card: 218 38% 9%;
@@ -76,7 +76,7 @@
     --destructive: 354 70% 58%;
     --destructive-foreground: 0 0% 100%;
     --border: 218 26% 18%;
-    --input: 218 22% 25%;
+    --input: 218 16% 42%;          /* ≥ 3:1 sobre la tarjeta (WCAG 1.4.11) */
     --ring: var(--zk-blue-bright);
     --brand: var(--zk-blue-bright);
     --brand-strong: var(--zk-blue-light);
@@ -97,7 +97,11 @@
 
   ::selection { background: hsl(var(--brand) / 0.25); }
 
-  :focus-visible { outline: none; }
+  /*
+   * Indicador de foco por defecto para cualquier control sin estilo propio.
+   * Los componentes con `.focus-ring` o anillos de foco propios lo sustituyen.
+   */
+  :focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
 }
 
 @layer utilities {

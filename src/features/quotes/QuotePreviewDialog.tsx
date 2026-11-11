@@ -1,4 +1,4 @@
-import { FileDown } from 'lucide-react'
+import { FileDown, Loader2 } from 'lucide-react'
 import type { Quote, QuoteTotals } from '@/domain/models'
 import { useServices } from '@/app/services'
 import { Button } from '@/components/ui/button'
@@ -31,10 +31,13 @@ export function QuotePreviewDialog({ quote, totals, open, onOpenChange }: { quot
             <DialogDescription className="text-xs">Así verá tu cliente la cotización.</DialogDescription>
           </div>
           <Button variant="outline" size="sm" disabled={generating || !quote || !pdf} onClick={() => void handlePdf()}>
-            <FileDown /> {generating ? 'Generando...' : 'Descargar PDF'}
+            {generating ? <Loader2 className="animate-spin" aria-hidden /> : <FileDown aria-hidden />} {generating ? 'Generando PDF…' : 'Descargar PDF'}
           </Button>
         </div>
-        <div className="p-3 sm:p-8">{quote && totals && <QuoteDocument quote={quote} totals={totals} />}</div>
+        <div className="p-3 sm:p-8">
+          <p className="mb-2 px-1 text-xs text-muted-foreground sm:hidden">Desliza la tabla hacia los lados para ver todas las columnas.</p>
+          {quote && totals && <QuoteDocument quote={quote} totals={totals} />}
+        </div>
       </DialogContent>
     </Dialog>
   )

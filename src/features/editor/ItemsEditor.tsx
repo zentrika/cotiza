@@ -47,14 +47,14 @@ export function ItemsEditor({ items, currency, errors, onAdd, onChange, onRemove
         ))}
       </ol>
 
-      {errors.items && <p className="mt-3 text-xs font-medium text-destructive">{errors.items}</p>}
+      {errors.items && <p role="alert" className="mt-3 text-xs font-medium text-destructive">{errors.items}</p>}
 
       <button
         type="button"
         onClick={() => setFocusId(onAdd())}
         className="focus-ring mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-input text-sm font-medium text-muted-foreground transition-colors hover:border-brand/60 hover:bg-brand-soft/40 hover:text-foreground"
       >
-        <Plus className="size-4" /> Agregar producto o servicio
+        <Plus className="size-4" aria-hidden /> Agregar producto o servicio
       </button>
     </div>
   )
@@ -90,15 +90,17 @@ function ItemRow({ item, index, currency, errors, canRemove, onChange, onRemove,
             placeholder="Descripción del producto o servicio"
             className="font-medium"
             aria-invalid={err('description') ? true : undefined}
+            aria-describedby={err('description') ? `${base}-errors` : undefined}
             data-field-error={err('description') ? '' : undefined}
           />
         </div>
         <ItemMenu canRemove={canRemove} onRemove={onRemove} onDuplicate={onDuplicate} index={index} />
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:ml-7 sm:mr-10 sm:grid-cols-[84px_minmax(0,1fr)_84px_84px_minmax(120px,auto)]">
+      {/* Cuatro columnas a partir de sm; el importe ocupa su propia fila para que el precio nunca se comprima. */}
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:ml-7 sm:mr-10 sm:grid-cols-[76px_minmax(7rem,1fr)_76px_76px]">
         <NumberCell label="Cantidad" id={`${base}-quantity`} error={err('quantity')}>
-          <QuantityInput id={`${base}-quantity`} value={item.quantity} onChange={(quantity) => onChange({ quantity })} invalid={Boolean(err('quantity'))} />
+          <QuantityInput id={`${base}-quantity`} value={item.quantity} onChange={(quantity) => onChange({ quantity })} invalid={Boolean(err('quantity'))} describedBy={`${base}-errors`} />
         </NumberCell>
 
         <NumberCell label={`Precio unitario (${currency})`} id={`${base}-unitPrice`} error={err('unitPrice')}>
@@ -111,21 +113,22 @@ function ItemRow({ item, index, currency, errors, canRemove, onChange, onRemove,
             onChange={(e) => onChange({ unitPrice: normalizeDecimalInput(e.target.value) })}
             className="tabular text-right"
             aria-invalid={err('unitPrice') ? true : undefined}
+            aria-describedby={err('unitPrice') ? `${base}-errors` : undefined}
             data-field-error={err('unitPrice') ? '' : undefined}
           />
         </NumberCell>
 
         <NumberCell label="Desc. %" id={`${base}-discountPercent`} error={err('discountPercent')}>
-          <PercentInput id={`${base}-discountPercent`} max={100} value={item.discountPercent} onChange={(discountPercent) => onChange({ discountPercent })} invalid={Boolean(err('discountPercent'))} />
+          <PercentInput id={`${base}-discountPercent`} max={100} value={item.discountPercent} onChange={(discountPercent) => onChange({ discountPercent })} invalid={Boolean(err('discountPercent'))} describedBy={`${base}-errors`} />
         </NumberCell>
 
         <NumberCell label="Imp. %" id={`${base}-taxPercent`} error={err('taxPercent')}>
-          <PercentInput id={`${base}-taxPercent`} value={item.taxPercent} onChange={(taxPercent) => onChange({ taxPercent })} invalid={Boolean(err('taxPercent'))} />
+          <PercentInput id={`${base}-taxPercent`} value={item.taxPercent} onChange={(taxPercent) => onChange({ taxPercent })} invalid={Boolean(err('taxPercent'))} describedBy={`${base}-errors`} />
         </NumberCell>
 
-        <div className="col-span-2 flex items-center justify-between border-t border-dashed pt-2.5 sm:col-span-1 sm:flex-col sm:items-end sm:justify-start sm:gap-1.5 sm:border-0 sm:pt-0">
+        <div className="col-span-full flex items-center justify-between border-t border-dashed pt-2.5">
           <span className="text-[12px] text-muted-foreground">Importe</span>
-          <div className="text-right sm:flex sm:h-10 sm:flex-col sm:justify-center">
+          <div className="text-right">
             <Money value={line.total} currency={currency} className="font-semibold" />
             {Number(line.discount) > 0 && <p className="text-[11px] leading-tight text-emerald-700 dark:text-emerald-400">ahorro <Money value={line.discount} currency={currency} /></p>}
           </div>
@@ -133,7 +136,7 @@ function ItemRow({ item, index, currency, errors, canRemove, onChange, onRemove,
       </div>
 
       {rowErrors.length > 0 && (
-        <ul className="mt-2 space-y-0.5 sm:ml-7">
+        <ul id={`${base}-errors`} className="mt-2 space-y-0.5 sm:ml-7">
           {[...new Set(rowErrors)].map((message) => <li key={message} className="text-xs font-medium text-destructive">{message}</li>)}
         </ul>
       )}
@@ -168,7 +171,7 @@ function ItemMenu({ canRemove, onRemove, onDuplicate, index }: { canRemove: bool
 }
 
 /** Cantidad con texto local para permitir escribir "1," o "0.5" sin perder el cursor. */
-function QuantityInput({ id, value, onChange, invalid }: { id: string; value: number; onChange: (value: number) => void; invalid: boolean }) {
+function QuantityInput({ id, value, onChange, invalid, describedBy }: { id: string; value: number; onChange: (value: number) => void; invalid: boolean; describedBy?: string }) {
   const [text, setText] = useState(String(value))
   const last = useRef(value)
 
@@ -195,12 +198,13 @@ function QuantityInput({ id, value, onChange, invalid }: { id: string; value: nu
       onBlur={() => setText(String(last.current))}
       className="tabular text-right"
       aria-invalid={invalid || undefined}
+      aria-describedby={invalid ? describedBy : undefined}
       data-field-error={invalid ? '' : undefined}
     />
   )
 }
 
-function PercentInput({ id, value, onChange, invalid, max }: { id: string; value: string; onChange: (value: string) => void; invalid: boolean; max?: number }) {
+function PercentInput({ id, value, onChange, invalid, max, describedBy }: { id: string; value: string; onChange: (value: string) => void; invalid: boolean; max?: number; describedBy?: string }) {
   return (
     <div className="relative">
       <Input
@@ -214,6 +218,7 @@ function PercentInput({ id, value, onChange, invalid, max }: { id: string; value
         }}
         className="tabular pr-6 text-right"
         aria-invalid={invalid || undefined}
+        aria-describedby={invalid ? describedBy : undefined}
         data-field-error={invalid ? '' : undefined}
       />
       <span aria-hidden className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">%</span>

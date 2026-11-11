@@ -89,7 +89,8 @@ export function HistoryPage() {
                 )}
               </div>
               <Select value={sort} onValueChange={(value) => setSort(value as QuoteSort)}>
-                <SelectTrigger className="sm:w-56" aria-label="Ordenar cotizaciones">
+                <span id="history-sort-label" className="sr-only">Ordenar por</span>
+                <SelectTrigger id="history-sort" className="sm:w-56" aria-labelledby="history-sort-label">
                   <span className="flex items-center gap-2"><ArrowDownUp className="size-4 text-muted-foreground" aria-hidden /><SelectValue /></span>
                 </SelectTrigger>
                 <SelectContent>

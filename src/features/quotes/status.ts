@@ -16,8 +16,8 @@ export const STATUS_META: Record<QuoteStatus, StatusMeta> = {
     label: 'Borrador',
     plural: 'Borradores',
     description: 'En preparación, aún no se ha enviado.',
-    dot: 'bg-stone-400 dark:bg-stone-500',
-    badge: 'border-stone-300/70 bg-stone-100 text-stone-700 dark:border-stone-700 dark:bg-stone-800/60 dark:text-stone-300',
+    dot: 'bg-slate-400 dark:bg-slate-500',
+    badge: 'border-slate-300/70 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300',
   },
   sent: {
     label: 'Enviada',

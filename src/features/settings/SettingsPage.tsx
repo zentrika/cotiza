@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Check, Download, HardDrive, Loader2, ShieldCheck, Upload } from 'lucide-react'
+import { AlertTriangle, Check, Download, HardDrive, Loader2, ShieldCheck, Upload } from 'lucide-react'
 import { useTheme } from '@/app/theme'
 import { FormField } from '@/components/common/FormField'
 import { ErrorState } from '@/components/common/States'
@@ -19,14 +19,17 @@ import { backupService, parseBackupFile, summarizeBackup, type BackupSummary } f
 import type { BackupPayload } from '@/domain/models'
 
 export function SettingsPage() {
+  // Tras restaurar un respaldo, el formulario del perfil se vuelve a montar para leer los datos restaurados
+  // (evita que quede en pantalla, y se pueda volver a guardar, el perfil anterior).
+  const [profileKey, setProfileKey] = useState(0)
   return (
     <div className="space-y-8">
       <PageHeader eyebrow="Ajustes" title="Configuración" description="Tu información y preferencias viven solo en este dispositivo." />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
-        <ProfileCard />
+        <ProfileCard key={profileKey} />
         <div className="space-y-6">
           <AppearanceCard />
-          <BackupCard />
+          <BackupCard onRestored={() => setProfileKey((key) => key + 1)} />
         </div>
       </div>
     </div>
@@ -143,14 +146,20 @@ function ThemeSwatch({ variant }: { variant: 'light' | 'dark' | 'system' }) {
   )
 }
 
-function BackupCard() {
-  const { backup = backupService } = useServices()
+interface CurrentDataSummary { profile: boolean; clients: number; quotes: number }
+interface PendingRestore { payload: BackupPayload; summary: BackupSummary; current?: CurrentDataSummary }
+
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`
+
+function BackupCard({ onRestored }: { onRestored?: () => void }) {
+  const { backup = backupService, quotes, clients, profile } = useServices()
   const inputRef = useRef<HTMLInputElement>(null)
-  const [pending, setPending] = useState<{ payload: BackupPayload; summary: BackupSummary }>()
-  const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState<PendingRestore>()
+  const [acknowledged, setAcknowledged] = useState(false)
+  const [busy, setBusy] = useState<'export' | 'read' | 'restore'>()
 
   const exportBackup = async () => {
-    setBusy(true)
+    setBusy('export')
     try {
       const payload = await backup.create()
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' })
@@ -159,37 +168,62 @@ function BackupCard() {
       anchor.href = url
       anchor.download = `cotiza-respaldo-${new Date().toISOString().slice(0, 10)}.json`
       anchor.click()
-      URL.revokeObjectURL(url)
-      toast.success('Respaldo exportado', { description: 'Guárdalo en un lugar seguro.' })
+      // Se libera después de que el navegador inicie la descarga (Safari y Firefox la cancelan si es inmediato).
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      toast.success('Respaldo exportado', { description: 'Revisa tu carpeta de descargas y guárdalo en un lugar seguro.' })
     } catch (error) {
       toast.error('No se pudo exportar el respaldo', { description: error instanceof Error ? error.message : undefined })
-    } finally { setBusy(false) }
+    } finally { setBusy(undefined) }
+  }
+
+  /** Lectura (solo consulta) de lo que hay hoy en el dispositivo, para mostrar qué se reemplazará. */
+  const readCurrentData = async (): Promise<CurrentDataSummary | undefined> => {
+    try {
+      const [quoteList, clientList, storedProfile] = await Promise.all([quotes.list(), clients.list(), profile.get()])
+      return { profile: Boolean(storedProfile), clients: clientList.length, quotes: quoteList.length }
+    } catch {
+      return undefined
+    }
   }
 
   const selectFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
     if (!file) return
-    setBusy(true)
+    setBusy('read')
     try {
       const payload = await parseBackupFile(file)
-      setPending({ payload, summary: summarizeBackup(payload) })
+      const current = await readCurrentData()
+      setAcknowledged(false)
+      setPending({ payload, summary: summarizeBackup(payload), current })
     } catch (error) {
-      toast.error('No se pudo leer el respaldo', { description: error instanceof Error ? error.message : undefined })
-    } finally { setBusy(false) }
+      toast.error('No se pudo leer el respaldo', { description: error instanceof Error ? error.message : 'El archivo no es un respaldo válido de Cotiza.' })
+    } finally { setBusy(undefined) }
   }
 
   const restore = async () => {
-    if (!pending) return
-    setBusy(true)
+    if (!pending || !acknowledged) return
+    setBusy('restore')
     try {
       await backup.restore(pending.payload)
       setPending(undefined)
-      toast.success('Respaldo restaurado', { description: 'Tus datos locales fueron reemplazados correctamente.' })
+      setAcknowledged(false)
+      onRestored?.()
+      toast.success('Respaldo restaurado', { description: 'Tus datos locales fueron reemplazados por los del archivo.' })
     } catch (error) {
-      toast.error('No se pudo restaurar el respaldo', { description: 'No se modificaron los datos actuales.' })
-    } finally { setBusy(false) }
+      toast.error('No se pudo restaurar el respaldo', { description: `${error instanceof Error ? `${error.message} ` : ''}Tus datos actuales no se modificaron.` })
+    } finally { setBusy(undefined) }
   }
+
+  const closeDialog = (open: boolean) => {
+    if (!open && busy !== 'restore') {
+      setPending(undefined)
+      setAcknowledged(false)
+    }
+  }
+
+  const current = pending?.current
+  const hasCurrentData = current ? current.profile || current.clients > 0 || current.quotes > 0 : true
 
   return (
     <Card>
@@ -202,31 +236,80 @@ function BackupCard() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" onClick={() => void exportBackup()} disabled={busy}><Download /> Exportar</Button>
-          <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={busy}><Upload /> Restaurar</Button>
-          <input ref={inputRef} type="file" accept="application/json,.json" className="sr-only" onChange={(event) => void selectFile(event)} aria-label="Seleccionar archivo de respaldo" />
+          <Button variant="outline" onClick={() => void exportBackup()} disabled={Boolean(busy)}>
+            {busy === 'export' ? <Loader2 className="animate-spin" aria-hidden /> : <Download aria-hidden />} Exportar
+          </Button>
+          <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={Boolean(busy)} aria-describedby="restore-warning">
+            {busy === 'read' ? <Loader2 className="animate-spin" aria-hidden /> : <Upload aria-hidden />} Restaurar
+          </Button>
+          <input ref={inputRef} type="file" accept="application/json,.json" className="sr-only" tabIndex={-1} onChange={(event) => void selectFile(event)} aria-label="Seleccionar archivo de respaldo" />
         </div>
-        <p role="note" className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-[12.5px] leading-relaxed text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          Restaurar reemplaza todos los datos actuales. Se recomienda exportar primero un respaldo de este navegador.
+        <p id="restore-warning" role="note" className="flex gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-[12.5px] leading-relaxed text-foreground">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+          <span>Restaurar <strong className="font-semibold">reemplaza todos los datos actuales</strong> de este navegador. Antes de confirmar verás qué contiene el archivo; exporta primero un respaldo si quieres conservar lo que tienes.</span>
         </p>
         <ul className="space-y-2.5 text-[13px] text-muted-foreground">
           <li className="flex gap-2"><HardDrive className="mt-0.5 size-4 shrink-0" aria-hidden /> Tus datos se guardan en el almacenamiento local de este navegador.</li>
           <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> El respaldo será un archivo que solo tú controlas; nada se sube a internet.</li>
         </ul>
       </CardContent>
-      <AlertDialog open={Boolean(pending)} onOpenChange={(open) => { if (!open && !busy) setPending(undefined) }}>
-        <AlertDialogContent>
+      <AlertDialog open={Boolean(pending)} onOpenChange={closeDialog}>
+        <AlertDialogContent className="max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Restaurar este respaldo?</AlertDialogTitle>
-            <AlertDialogDescription>Esta acción sustituirá los datos actuales. El archivo ya fue validado y no se enviará a ningún servidor.</AlertDialogDescription>
+            <AlertDialogTitle>¿Reemplazar tus datos con este respaldo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {hasCurrentData
+                ? 'Los datos que tienes ahora en este navegador se eliminarán y se sustituirán por los del archivo. Esta acción no se puede deshacer.'
+                : 'Este navegador no tiene datos guardados; se cargarán los del archivo.'}
+            </AlertDialogDescription>
           </AlertDialogHeader>
-          {pending && <div className="rounded-lg border bg-muted/30 p-3 text-sm"><p><strong>Generado:</strong> {new Date(pending.summary.exportedAt).toLocaleString()}</p><p><strong>Incluye:</strong> {pending.summary.profile ? '1 perfil, ' : ''}{pending.summary.clients} clientes, {pending.summary.quotes} cotizaciones y {pending.summary.items} partidas.</p></div>}
+          {pending && (
+            <div className="grid gap-2 text-sm sm:grid-cols-2">
+              <section aria-labelledby="restore-current" className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                <h3 id="restore-current" className="text-xs font-semibold uppercase tracking-wider text-destructive">Se eliminará</h3>
+                {current ? (
+                  <ul className="mt-1.5 space-y-0.5 text-foreground">
+                    <li>{plural(current.quotes, 'cotización', 'cotizaciones')}</li>
+                    <li>{plural(current.clients, 'cliente', 'clientes')}</li>
+                    <li>{current.profile ? 'Perfil del negocio' : 'Sin perfil del negocio'}</li>
+                  </ul>
+                ) : (
+                  <p className="mt-1.5 text-foreground">Todos los datos actuales de este navegador.</p>
+                )}
+              </section>
+              <section aria-labelledby="restore-incoming" className="rounded-lg border bg-muted/40 p-3">
+                <h3 id="restore-incoming" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Se restaurará</h3>
+                <ul className="mt-1.5 space-y-0.5">
+                  <li>{plural(pending.summary.quotes, 'cotización', 'cotizaciones')} ({plural(pending.summary.items, 'línea', 'líneas')})</li>
+                  <li>{plural(pending.summary.clients, 'cliente', 'clientes')}</li>
+                  <li>{pending.summary.profile ? 'Perfil del negocio' : 'Sin perfil del negocio'}</li>
+                </ul>
+                <p className="mt-2 text-xs text-muted-foreground">Generado el {formatBackupDate(pending.summary.exportedAt)}</p>
+              </section>
+            </div>
+          )}
+          {hasCurrentData && (
+            <Button variant="link" size="sm" className="h-auto justify-start px-0" onClick={() => void exportBackup()} disabled={Boolean(busy)}>
+              <Download aria-hidden /> Exportar primero mis datos actuales
+            </Button>
+          )}
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm">
+            <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} disabled={busy === 'restore'} className="mt-0.5 size-4 shrink-0 accent-[hsl(var(--destructive))]" />
+            <span>Entiendo que mis datos actuales se reemplazarán por los del respaldo.</span>
+          </label>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction destructive disabled={busy} onClick={(event) => { event.preventDefault(); void restore() }}>Reemplazar datos</AlertDialogAction>
+            <AlertDialogCancel disabled={busy === 'restore'}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction destructive disabled={!acknowledged || Boolean(busy)} onClick={(event) => { event.preventDefault(); void restore() }}>
+              {busy === 'restore' && <Loader2 className="animate-spin" aria-hidden />} {busy === 'restore' ? 'Restaurando…' : 'Reemplazar datos'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </Card>
   )
+}
+
+function formatBackupDate(iso: string) {
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? 'fecha desconocida' : date.toLocaleString('es-CO', { dateStyle: 'long', timeStyle: 'short' })
 }

@@ -132,7 +132,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
         <div className="space-y-6">
           {/* 01 · Detalles */}
           <EditorSection index="01" title="Detalles" description="Identifica la cotización y define su vigencia.">
@@ -223,7 +223,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
             <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Sugerencias de condiciones">
               {NOTE_SUGGESTIONS.filter((text) => !quote.notes?.includes(text)).map((text) => (
                 <button key={text} type="button" onClick={() => appendNote(text)} className="focus-ring inline-flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1 text-left text-xs text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground">
-                  <Sparkles className="size-3 text-brand" aria-hidden /> {text}
+                  <Sparkles className="size-3 text-brand" aria-hidden /> <span><span className="sr-only">Agregar: </span>{text}</span>
                 </button>
               ))}
             </div>
@@ -259,10 +259,10 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
                 </FormField>
                 {!editor.profile && (
                   <label className="flex cursor-pointer items-start gap-3 rounded-xl border bg-background/60 p-3 sm:col-span-2">
-                    <input type="checkbox" checked={editor.saveAsProfile} onChange={(e) => editor.setSaveAsProfile(e.target.checked)} className="mt-0.5 size-4 accent-[hsl(var(--brand))]" />
+                    <input type="checkbox" aria-describedby="save-as-profile-hint" checked={editor.saveAsProfile} onChange={(e) => editor.setSaveAsProfile(e.target.checked)} className="mt-0.5 size-4 accent-[hsl(var(--brand))]" />
                     <span className="text-sm">
                       <span className="font-medium">Guardar como perfil de mi negocio</span>
-                      <span className="block text-xs text-muted-foreground">Se completará solo en tus próximas cotizaciones.</span>
+                      <span id="save-as-profile-hint" className="block text-xs text-muted-foreground">Se completará solo en tus próximas cotizaciones.</span>
                     </span>
                   </label>
                 )}
@@ -273,7 +273,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
                 <div className="min-w-0 text-sm">
                   <p className="font-medium">{issuer.legalName}</p>
                   <p className="text-muted-foreground">{[issuer.taxId && `NIT ${issuer.taxId}`, issuer.email, issuer.phone].filter(Boolean).join(' · ') || 'Sin datos de contacto'}</p>
-                  <Link to={paths.settings} className="mt-1 inline-block text-xs font-medium text-brand-strong hover:underline">Editar perfil del negocio</Link>
+                  <Link to={paths.settings} className="focus-ring mt-1 inline-block rounded text-xs font-medium text-brand-strong hover:underline">Editar perfil del negocio</Link>
                 </div>
               </div>
             )}
@@ -281,7 +281,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
         </div>
 
         {/* Resumen lateral */}
-        <aside className="space-y-4 lg:sticky lg:top-24" aria-label="Resumen de la cotización">
+        <aside className="space-y-4 xl:sticky xl:top-24" aria-label="Resumen de la cotización">
           <TotalsPanel totals={totals} currency={quote.currency} itemCount={quote.items.length} />
           <div className="rounded-2xl border bg-card p-4 shadow-lift">
             <FormField label="Estado" hint={STATUS_META[quote.status].description}>
@@ -297,7 +297,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
               </Select>
             </FormField>
           </div>
-          <div className="hidden gap-2 lg:grid">
+          <div className="hidden gap-2 xl:grid">
             <Button size="lg" onClick={handleSave} disabled={editor.saving}>
               {editor.saving ? <Loader2 className="animate-spin" /> : <Save />} Guardar cotización
             </Button>
@@ -329,9 +329,9 @@ function EditorSkeleton() {
   return (
     <div aria-busy="true" aria-label="Cargando cotización" className="space-y-6">
       <div className="flex items-center gap-3"><Skeleton className="size-8" /><div className="space-y-2"><Skeleton className="h-5 w-48" /><Skeleton className="h-3 w-32" /></div></div>
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+      <div className="grid gap-6 xl:grid-cols-[1fr_300px]">
         <div className="space-y-6">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-56 rounded-2xl" />)}</div>
-        <Skeleton className="hidden h-72 rounded-2xl lg:block" />
+        <Skeleton className="hidden h-72 rounded-2xl xl:block" />
       </div>
     </div>
   )
