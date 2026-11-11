@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Check, Download, HardDrive, Loader2, ShieldCheck, Upload } from 'lucide-react'
 import { useTheme } from '@/app/theme'
@@ -7,11 +8,15 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { THEME_OPTIONS } from '@/components/layout/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { useProfileForm } from './useProfileForm'
+import { useServices } from '@/app/services'
+import { backupService, parseBackupFile, summarizeBackup, type BackupSummary } from '@/services/backup'
+import type { BackupPayload } from '@/domain/models'
 
 export function SettingsPage() {
   return (
@@ -139,28 +144,89 @@ function ThemeSwatch({ variant }: { variant: 'light' | 'dark' | 'system' }) {
 }
 
 function BackupCard() {
+  const { backup = backupService } = useServices()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [pending, setPending] = useState<{ payload: BackupPayload; summary: BackupSummary }>()
+  const [busy, setBusy] = useState(false)
+
+  const exportBackup = async () => {
+    setBusy(true)
+    try {
+      const payload = await backup.create()
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = `cotiza-respaldo-${new Date().toISOString().slice(0, 10)}.json`
+      anchor.click()
+      URL.revokeObjectURL(url)
+      toast.success('Respaldo exportado', { description: 'Guárdalo en un lugar seguro.' })
+    } catch (error) {
+      toast.error('No se pudo exportar el respaldo', { description: error instanceof Error ? error.message : undefined })
+    } finally { setBusy(false) }
+  }
+
+  const selectFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    setBusy(true)
+    try {
+      const payload = await parseBackupFile(file)
+      setPending({ payload, summary: summarizeBackup(payload) })
+    } catch (error) {
+      toast.error('No se pudo leer el respaldo', { description: error instanceof Error ? error.message : undefined })
+    } finally { setBusy(false) }
+  }
+
+  const restore = async () => {
+    if (!pending) return
+    setBusy(true)
+    try {
+      await backup.restore(pending.payload)
+      setPending(undefined)
+      toast.success('Respaldo restaurado', { description: 'Tus datos locales fueron reemplazados correctamente.' })
+    } catch (error) {
+      toast.error('No se pudo restaurar el respaldo', { description: 'No se modificaron los datos actuales.' })
+    } finally { setBusy(false) }
+  }
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle>Respaldos</CardTitle>
-          <Badge variant="secondary">Próximamente</Badge>
+          <Badge variant="secondary">Solo local</Badge>
         </div>
         <CardDescription>Exporta un archivo con tus datos para guardarlo donde quieras o pasarlo a otro dispositivo.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" disabled><Download /> Exportar</Button>
-          <Button variant="outline" disabled><Upload /> Restaurar</Button>
+          <Button variant="outline" onClick={() => void exportBackup()} disabled={busy}><Download /> Exportar</Button>
+          <Button variant="outline" onClick={() => inputRef.current?.click()} disabled={busy}><Upload /> Restaurar</Button>
+          <input ref={inputRef} type="file" accept="application/json,.json" className="sr-only" onChange={(event) => void selectFile(event)} aria-label="Seleccionar archivo de respaldo" />
         </div>
         <p role="note" className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-[12.5px] leading-relaxed text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          Los datos comerciales ya se guardan localmente en este navegador. El archivo de respaldo para exportar o restaurar llegará en una próxima fase.
+          Restaurar reemplaza todos los datos actuales. Se recomienda exportar primero un respaldo de este navegador.
         </p>
         <ul className="space-y-2.5 text-[13px] text-muted-foreground">
           <li className="flex gap-2"><HardDrive className="mt-0.5 size-4 shrink-0" aria-hidden /> Tus datos se guardan en el almacenamiento local de este navegador.</li>
           <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden /> El respaldo será un archivo que solo tú controlas; nada se sube a internet.</li>
         </ul>
       </CardContent>
+      <AlertDialog open={Boolean(pending)} onOpenChange={(open) => { if (!open && !busy) setPending(undefined) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Restaurar este respaldo?</AlertDialogTitle>
+            <AlertDialogDescription>Esta acción sustituirá los datos actuales. El archivo ya fue validado y no se enviará a ningún servidor.</AlertDialogDescription>
+          </AlertDialogHeader>
+          {pending && <div className="rounded-lg border bg-muted/30 p-3 text-sm"><p><strong>Generado:</strong> {new Date(pending.summary.exportedAt).toLocaleString()}</p><p><strong>Incluye:</strong> {pending.summary.profile ? '1 perfil, ' : ''}{pending.summary.clients} clientes, {pending.summary.quotes} cotizaciones y {pending.summary.items} partidas.</p></div>}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction destructive disabled={busy} onClick={(event) => { event.preventDefault(); void restore() }}>Reemplazar datos</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

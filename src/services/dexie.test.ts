@@ -26,9 +26,12 @@ describe('servicios Dexie', () => {
 
   it('guarda un único perfil y rechaza entidades inválidas', async () => {
     const services = createDexieServices()
-    await services.profile.save({ id: '44444444-4444-4444-8444-444444444444', legalName: 'Mi negocio', schemaVersion: DATA_SCHEMA_VERSION })
+    const original = { id: '44444444-4444-4444-8444-444444444444', legalName: 'Mi negocio', schemaVersion: DATA_SCHEMA_VERSION } as const
+    await services.profile.save(original)
     await services.profile.save({ id: '55555555-5555-4555-8555-555555555555', legalName: 'Mi negocio actualizado', schemaVersion: DATA_SCHEMA_VERSION })
     expect((await services.profile.get())?.legalName).toBe('Mi negocio actualizado')
     await expect(services.quotes.save({ ...quote, id: 'bad-id' })).rejects.toThrow('Datos inválidos')
+    await expect(services.profile.save({ ...original, legalName: 'x'.repeat(161) })).rejects.toThrow('Datos inválidos')
+    expect((await services.profile.get())?.legalName).toBe('Mi negocio actualizado')
   })
 })

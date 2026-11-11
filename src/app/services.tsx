@@ -1,6 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import type { BusinessProfile } from '@/domain/models'
-import type { ClientService, PdfService, ProfileService, QuoteService } from '@/services/contracts'
+import type { BackupService, ClientService, PdfService, ProfileService, QuoteService } from '@/services/contracts'
+import { backupService } from '@/services/backup'
 import { dexieClientService, dexieProfileService, dexieQuoteService } from '@/services/dexie'
 import { pdfService } from '@/services/pdf'
 
@@ -14,6 +15,7 @@ export interface AppServices {
   quotes: QuoteService
   clients: ClientService
   profile: ProfileService
+  backup?: BackupService
   pdf?: PdfService
 }
 
@@ -34,7 +36,7 @@ export function createInMemoryProfileService(seed?: BusinessProfile): ProfileSer
   }
 }
 
-export const defaultServices: AppServices = { quotes: dexieQuoteService, clients: dexieClientService, profile: dexieProfileService, pdf: pdfService }
+export const defaultServices: AppServices = { quotes: dexieQuoteService, clients: dexieClientService, profile: dexieProfileService, backup: backupService, pdf: pdfService }
 
 const ServicesContext = createContext<AppServices>(defaultServices)
 
