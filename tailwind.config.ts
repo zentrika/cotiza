@@ -26,7 +26,7 @@ export default {
         destructive: { DEFAULT: token('destructive'), foreground: token('destructive-foreground') },
         card: { DEFAULT: token('card'), foreground: token('card-foreground') },
         popover: { DEFAULT: token('popover'), foreground: token('popover-foreground') },
-        ember: { DEFAULT: token('ember'), strong: token('ember-strong'), soft: token('ember-soft') },
+        brand: { DEFAULT: token('brand'), strong: token('brand-strong'), soft: token('brand-soft'), cyan: token('brand-cyan'), violet: token('brand-violet'), on: token('brand-on') },
         paper: token('paper'),
       },
       borderRadius: { lg: 'var(--radius)', md: 'calc(var(--radius) - 2px)', sm: 'calc(var(--radius) - 4px)' },

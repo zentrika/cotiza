@@ -3,65 +3,86 @@
 @tailwind utilities;
 
 /*
- * Cotiza · sistema visual "papel y tinta".
- * Superficies cálidas tipo papel, tinta azul-noche para el texto y un acento
- * "ember" (cobre) reservado para foco, marca y el total de la cotización.
+ * Cotiza · identidad ZENTRIKA.
+ * Neutros fríos derivados de la obsidiana (#080F1A) y la pizarra (#334155) de
+ * la marca matriz, con el azul ZENTRIKA reservado para foco, marca, estados
+ * activos y el total de la cotización. Los valores --zk-* son la paleta
+ * oficial extraída de public/brand/assets/*.svg; el resto de tokens los usa.
  */
 @layer base {
   :root {
-    --background: 40 30% 97%;
-    --foreground: 228 26% 12%;
+    /* Paleta oficial ZENTRIKA (no editar sin actualizar los SVG de marca) */
+    --zk-blue: 223 100% 58%;        /* #2A66FF  gradiente diagonal, inicio */
+    --zk-blue-deep: 227 86% 54%;    /* #2450EE  gradiente diagonal, medio */
+    --zk-blue-bright: 218 100% 62%; /* #3B82FF  barra superior */
+    --zk-blue-light: 222 100% 68%;  /* #5C8DFF  barra superior, inicio */
+    --zk-blue-ink: 217 89% 53%;     /* #1D6FF2  acento del logotipo claro */
+    --zk-cyan: 204 100% 64%;        /* #45B4FF  pieza inferior */
+    --zk-indigo: 239 84% 67%;       /* #6366F1 */
+    --zk-violet: 258 90% 66%;       /* #8B5CF6 */
+    --zk-navy: 230 78% 18%;         /* #0A1650  pliegue */
+    --zk-obsidian: 217 53% 7%;      /* #080F1A  monocromo oscuro */
+    --zk-slate: 215 25% 27%;        /* #334155  texto secundario claro */
+    --zk-mist: 219 37% 85%;         /* #C9D3E6  texto secundario oscuro */
+
+    --background: 220 33% 98%;
+    --foreground: 217 45% 10%;
     --paper: 0 0% 100%;
     --card: 0 0% 100%;
-    --card-foreground: 228 26% 12%;
+    --card-foreground: 217 45% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 228 26% 12%;
-    --primary: 228 26% 14%;
-    --primary-foreground: 40 30% 97%;
-    --secondary: 38 22% 92%;
-    --secondary-foreground: 228 26% 14%;
-    --muted: 38 20% 93%;
-    --muted-foreground: 228 9% 40%;
-    --accent: 38 24% 90%;
-    --accent-foreground: 228 26% 12%;
+    --popover-foreground: 217 45% 10%;
+    --primary: var(--zk-obsidian);
+    --primary-foreground: 220 33% 98%;
+    --secondary: 220 28% 94%;
+    --secondary-foreground: 217 45% 12%;
+    --muted: 220 26% 94%;
+    --muted-foreground: var(--zk-slate);
+    --accent: 222 45% 93%;
+    --accent-foreground: 217 45% 10%;
     --destructive: 354 68% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 36 16% 86%;
-    --input: 36 14% 80%;
-    --ring: 16 80% 50%;
-    --ember: 16 80% 52%;
-    --ember-strong: 16 74% 40%;
-    --ember-soft: 22 90% 94%;
-    --shadow: 228 30% 20%;
+    --border: 220 22% 88%;
+    --input: 220 18% 80%;
+    --ring: var(--zk-blue);
+    --brand: var(--zk-blue);
+    --brand-strong: var(--zk-blue-deep);
+    --brand-soft: 223 100% 96%;
+    --brand-cyan: var(--zk-cyan);
+    --brand-violet: var(--zk-violet);
+    --brand-on: 0 0% 100%;
+    --shadow: 217 50% 12%;
+    --brand-gradient: linear-gradient(110deg, hsl(var(--zk-blue)) 0%, hsl(var(--zk-blue-deep)) 45%, hsl(var(--zk-indigo)) 78%, hsl(var(--zk-violet)) 100%);
     --radius: 0.75rem;
     color-scheme: light;
   }
 
   .dark {
-    --background: 228 22% 8%;
-    --foreground: 40 22% 93%;
-    --paper: 228 18% 12%;
-    --card: 228 19% 11%;
-    --card-foreground: 40 22% 93%;
-    --popover: 228 19% 12%;
-    --popover-foreground: 40 22% 93%;
-    --primary: 40 26% 93%;
-    --primary-foreground: 228 24% 10%;
-    --secondary: 228 15% 17%;
-    --secondary-foreground: 40 22% 93%;
-    --muted: 228 15% 15%;
-    --muted-foreground: 228 9% 64%;
-    --accent: 228 15% 18%;
-    --accent-foreground: 40 22% 93%;
+    --background: 218 45% 6%;
+    --foreground: 220 30% 94%;
+    --paper: 218 36% 10%;
+    --card: 218 38% 9%;
+    --card-foreground: 220 30% 94%;
+    --popover: 218 36% 10%;
+    --popover-foreground: 220 30% 94%;
+    --primary: 220 30% 94%;
+    --primary-foreground: var(--zk-obsidian);
+    --secondary: 218 28% 15%;
+    --secondary-foreground: 220 30% 94%;
+    --muted: 218 28% 13%;
+    --muted-foreground: var(--zk-mist);
+    --accent: 220 32% 16%;
+    --accent-foreground: 220 30% 94%;
     --destructive: 354 70% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 228 14% 19%;
-    --input: 228 13% 25%;
-    --ring: 18 88% 60%;
-    --ember: 18 88% 60%;
-    --ember-strong: 20 92% 68%;
-    --ember-soft: 18 40% 16%;
-    --shadow: 228 40% 2%;
+    --border: 218 26% 18%;
+    --input: 218 22% 25%;
+    --ring: var(--zk-blue-bright);
+    --brand: var(--zk-blue-bright);
+    --brand-strong: var(--zk-blue-light);
+    --brand-soft: 223 55% 15%;
+    --brand-on: var(--zk-obsidian);
+    --shadow: 218 60% 2%;
     color-scheme: dark;
   }
 
@@ -74,12 +95,13 @@
     font-feature-settings: 'cv11', 'ss01';
   }
 
-  ::selection { background: hsl(var(--ember) / 0.25); }
+  ::selection { background: hsl(var(--brand) / 0.25); }
 
   :focus-visible { outline: none; }
 }
 
 @layer utilities {
+  .bg-brand-gradient { background-image: var(--brand-gradient); }
   .tabular { font-variant-numeric: tabular-nums; }
   .text-balance { text-wrap: balance; }
   .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background; }

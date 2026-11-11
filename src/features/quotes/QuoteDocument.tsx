@@ -21,7 +21,7 @@ export function QuoteDocument({ quote, totals, className }: { quote: Quote; tota
       aria-label={`Vista previa de la cotización ${quote.number}`}
       className={cn('relative mx-auto w-full max-w-[794px] overflow-hidden rounded-sm bg-white text-[13px] leading-relaxed text-[#171a26] shadow-paper ring-1 ring-black/5', className)}
     >
-      <div aria-hidden className="h-1.5 bg-[linear-gradient(90deg,#171a26_0_70%,hsl(16_80%_52%)_70%_100%)]" />
+      <div aria-hidden className="h-1.5 bg-[linear-gradient(110deg,#2A66FF_0%,#2450EE_45%,#6366F1_78%,#8B5CF6_100%)]" />
       <div className="p-6 sm:p-10">
         <header className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
@@ -34,7 +34,7 @@ export function QuoteDocument({ quote, totals, className }: { quote: Quote; tota
             </div>
           </div>
           <div className="shrink-0 sm:text-right">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[hsl(16_74%_40%)]">Cotización</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#2450EE]">Cotización</p>
             <p className="mt-1 font-mono text-lg font-semibold tracking-tight">{quote.number || '—'}</p>
             <dl className="mt-2 grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-[12px] sm:justify-end">
               <dt className="text-[#5b6070]">Emitida</dt>

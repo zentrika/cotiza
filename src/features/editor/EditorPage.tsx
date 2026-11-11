@@ -172,7 +172,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
                   <SelectTrigger><SelectValue placeholder="Selecciona un cliente" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NEW_CLIENT}>
-                      <span className="inline-flex items-center gap-2"><UserPlus className="size-4 text-ember-strong" /> Nuevo cliente</span>
+                      <span className="inline-flex items-center gap-2"><UserPlus className="size-4 text-brand-strong" /> Nuevo cliente</span>
                     </SelectItem>
                     {editor.clients.length > 0 && <SelectSeparator />}
                     {editor.clients.map((client) => <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>)}
@@ -222,8 +222,8 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
             </FormField>
             <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Sugerencias de condiciones">
               {NOTE_SUGGESTIONS.filter((text) => !quote.notes?.includes(text)).map((text) => (
-                <button key={text} type="button" onClick={() => appendNote(text)} className="focus-ring inline-flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1 text-left text-xs text-muted-foreground transition-colors hover:border-ember/50 hover:text-foreground">
-                  <Sparkles className="size-3 text-ember" aria-hidden /> {text}
+                <button key={text} type="button" onClick={() => appendNote(text)} className="focus-ring inline-flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1 text-left text-xs text-muted-foreground transition-colors hover:border-brand/50 hover:text-foreground">
+                  <Sparkles className="size-3 text-brand" aria-hidden /> {text}
                 </button>
               ))}
             </div>
@@ -259,7 +259,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
                 </FormField>
                 {!editor.profile && (
                   <label className="flex cursor-pointer items-start gap-3 rounded-xl border bg-background/60 p-3 sm:col-span-2">
-                    <input type="checkbox" checked={editor.saveAsProfile} onChange={(e) => editor.setSaveAsProfile(e.target.checked)} className="mt-0.5 size-4 accent-[hsl(var(--ember))]" />
+                    <input type="checkbox" checked={editor.saveAsProfile} onChange={(e) => editor.setSaveAsProfile(e.target.checked)} className="mt-0.5 size-4 accent-[hsl(var(--brand))]" />
                     <span className="text-sm">
                       <span className="font-medium">Guardar como perfil de mi negocio</span>
                       <span className="block text-xs text-muted-foreground">Se completará solo en tus próximas cotizaciones.</span>
@@ -273,7 +273,7 @@ export function EditorPage({ quoteId }: { quoteId?: string }) {
                 <div className="min-w-0 text-sm">
                   <p className="font-medium">{issuer.legalName}</p>
                   <p className="text-muted-foreground">{[issuer.taxId && `NIT ${issuer.taxId}`, issuer.email, issuer.phone].filter(Boolean).join(' · ') || 'Sin datos de contacto'}</p>
-                  <Link to={paths.settings} className="mt-1 inline-block text-xs font-medium text-ember-strong hover:underline">Editar perfil del negocio</Link>
+                  <Link to={paths.settings} className="mt-1 inline-block text-xs font-medium text-brand-strong hover:underline">Editar perfil del negocio</Link>
                 </div>
               </div>
             )}

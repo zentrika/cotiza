@@ -36,13 +36,13 @@ export function HomePage() {
     <div className="space-y-10">
       {/* Presentación */}
       <section className="relative grid items-center gap-10 overflow-hidden rounded-3xl border bg-card px-6 py-10 shadow-lift sm:px-10 sm:py-12 lg:grid-cols-[1.1fr_0.9fr]">
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-ember/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-[radial-gradient(circle,hsl(var(--brand)/0.14),hsl(var(--brand-violet)/0.08)_55%,transparent_70%)] blur-2xl" />
         <div className="relative animate-fade-up">
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-ember" aria-hidden /> Gratis · Sin registro
+            <span className="size-1.5 rounded-full bg-brand" aria-hidden /> Gratis · Sin registro
           </p>
           <h1 className="text-balance font-display text-[34px] font-medium leading-[1.08] tracking-tight sm:text-5xl">
-            Cotizaciones claras, <em className="font-normal italic text-ember-strong">listas en minutos.</em>
+            Cotizaciones claras, <em className="font-normal italic text-brand-strong">listas en minutos.</em>
           </h1>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground sm:text-base">
             Crea propuestas profesionales con totales exactos, descuentos e impuestos por línea. Pensado para independientes y pequeños negocios en Colombia.
@@ -61,15 +61,15 @@ export function HomePage() {
 
       {/* Perfil pendiente */}
       {profile.status === 'success' && !profile.data && (
-        <Link to={paths.settings} className="focus-ring group flex items-center gap-4 rounded-2xl border border-ember/30 bg-ember-soft/60 p-4 transition-colors hover:bg-ember-soft sm:p-5">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-card text-ember-strong shadow-lift">
+        <Link to={paths.settings} className="focus-ring group flex items-center gap-4 rounded-2xl border border-brand/30 bg-brand-soft/60 p-4 transition-colors hover:bg-brand-soft sm:p-5">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-card text-brand-strong shadow-lift">
             <Building2 className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block font-medium">Configura los datos de tu negocio</span>
             <span className="block text-sm text-muted-foreground">Aparecerán automáticamente en cada cotización nueva.</span>
           </span>
-          <ArrowRight className="size-4 shrink-0 text-ember-strong transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="size-4 shrink-0 text-brand-strong transition-transform group-hover:translate-x-0.5" />
         </Link>
       )}
 
@@ -79,7 +79,7 @@ export function HomePage() {
           <div className="mb-3 flex items-end justify-between">
             <h2 id="recent-heading" className="font-display text-xl font-medium tracking-tight">Recientes</h2>
             {list.length > 0 && (
-              <Link to={paths.history} className="focus-ring inline-flex items-center gap-1 rounded text-sm font-medium text-ember-strong hover:underline">
+              <Link to={paths.history} className="focus-ring inline-flex items-center gap-1 rounded text-sm font-medium text-brand-strong hover:underline">
                 Ver todas <ArrowRight className="size-3.5" />
               </Link>
             )}
@@ -130,7 +130,7 @@ export function HomePage() {
             <ul className="mt-4 space-y-4">
               {PRIVACY_POINTS.map(({ icon: Icon, title, text }) => (
                 <li key={title} className="flex gap-3">
-                  <Icon className="mt-0.5 size-4 shrink-0 text-ember-strong" aria-hidden />
+                  <Icon className="mt-0.5 size-4 shrink-0 text-brand-strong" aria-hidden />
                   <div>
                     <p className="text-sm font-medium">{title}</p>
                     <p className="text-[13px] leading-relaxed text-muted-foreground">{text}</p>
@@ -154,14 +154,14 @@ function PaperIllustration() {
     <div aria-hidden className="relative mx-auto hidden h-64 w-full max-w-sm select-none sm:block">
       <div className="absolute inset-x-10 top-6 h-56 rotate-[5deg] rounded-lg border bg-background shadow-lift" />
       <div className="absolute inset-x-6 top-2 h-60 -rotate-[2deg] rounded-lg border bg-paper p-5 shadow-paper transition-transform duration-500 hover:-rotate-[1deg]">
-        <div className="h-1 w-full rounded-full bg-[linear-gradient(90deg,hsl(var(--primary))_0_70%,hsl(var(--ember))_70%_100%)]" />
+        <div className="h-1 w-full rounded-full bg-brand-gradient" />
         <div className="mt-4 flex items-start justify-between">
           <div className="space-y-1.5">
             <div className="h-2.5 w-24 rounded bg-foreground/80" />
             <div className="h-2 w-16 rounded bg-muted-foreground/30" />
           </div>
           <div className="space-y-1.5 text-right">
-            <div className="ml-auto h-2 w-14 rounded bg-ember/70" />
+            <div className="ml-auto h-2 w-14 rounded bg-brand-gradient opacity-80" />
             <div className="font-mono text-[11px] font-semibold text-foreground/80">COT-0042</div>
           </div>
         </div>

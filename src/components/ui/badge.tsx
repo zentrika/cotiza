@@ -8,7 +8,7 @@ export const badgeVariants = cva('inline-flex items-center gap-1.5 whitespace-no
       default: 'border-transparent bg-primary text-primary-foreground',
       secondary: 'border-transparent bg-secondary text-secondary-foreground',
       outline: 'text-foreground',
-      ember: 'border-transparent bg-ember-soft text-ember-strong',
+      brand: 'border-transparent bg-brand-soft text-brand-strong',
     },
   },
   defaultVariants: { variant: 'default' },

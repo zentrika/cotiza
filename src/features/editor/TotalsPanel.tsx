@@ -2,13 +2,13 @@ import type { Currency, QuoteTotals } from '@/domain/models'
 import { Money } from '@/components/common/Money'
 import { cn } from '@/lib/utils'
 
-/** Resumen de importes. El total usa la tipografía display y el acento cobre. */
+/** Resumen de importes. El total usa la tipografía display y el acento azul ZENTRIKA. */
 export function TotalsPanel({ totals, currency, itemCount, className }: { totals: QuoteTotals; currency: Currency; itemCount: number; className?: string }) {
   const hasDiscount = Number(totals.discount) > 0
   return (
     <div className={cn('rounded-2xl border bg-card shadow-lift', className)}>
       <div className="relative overflow-hidden rounded-t-2xl bg-primary px-5 pb-5 pt-4 text-primary-foreground">
-        <div aria-hidden className="absolute -right-10 -top-10 size-32 rounded-full bg-ember/30 blur-2xl" />
+        <div aria-hidden className="absolute -right-10 -top-10 size-32 rounded-full bg-[radial-gradient(circle,hsl(var(--brand-cyan)/0.45),hsl(var(--brand-violet)/0.25)_60%,transparent_75%)] blur-2xl" />
         <p className="relative text-[11px] font-semibold uppercase tracking-[0.2em] opacity-70">Total a cotizar</p>
         <p className="relative mt-1.5 font-display text-[32px] font-medium leading-none tracking-tight" aria-live="polite">
           <Money value={totals.total} currency={currency} />

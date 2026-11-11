@@ -24,8 +24,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Barra lateral (escritorio) */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-card/60 backdrop-blur-sm lg:flex">
         <div className="flex h-16 items-center justify-between px-5">
-          <Link to={paths.home} className="focus-ring rounded-lg" aria-label="Cotiza, ir al inicio">
-            <Logo />
+          <Link to={paths.home} className="focus-ring rounded-lg" aria-label="Cotiza by ZENTRIKA, ir al inicio">
+            <Logo layout="stacked" />
           </Link>
           <ThemeToggle />
         </div>
@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="px-4 pt-4">
           <Link
             to={paths.newQuote}
-            className={cn('focus-ring group flex h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-lift transition-colors hover:bg-primary/90', route.name === 'new-quote' && 'ring-2 ring-ember ring-offset-2 ring-offset-background')}
+            className={cn('focus-ring group flex h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow-lift transition-colors hover:bg-primary/90', route.name === 'new-quote' && 'ring-2 ring-brand ring-offset-2 ring-offset-background')}
           >
             <Plus className="size-4 transition-transform duration-200 group-hover:rotate-90" />
             Nueva cotización
@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               aria-current={isActive(match) ? 'page' : undefined}
               className={cn(
                 'focus-ring relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
-                isActive(match) && 'bg-accent text-foreground before:absolute before:-left-3 before:top-2 before:h-6 before:w-[3px] before:rounded-r-full before:bg-ember',
+                isActive(match) && 'bg-accent text-foreground before:absolute before:-left-3 before:top-2 before:h-6 before:w-[3px] before:rounded-r-full before:bg-brand',
               )}
             >
               <Icon className="size-[18px]" />
@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Barra superior (móvil y tableta) */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/85 px-4 backdrop-blur-md lg:hidden">
-        <Link to={paths.home} className="focus-ring rounded-lg" aria-label="Cotiza, ir al inicio">
+        <Link to={paths.home} className="focus-ring rounded-lg" aria-label="Cotiza by ZENTRIKA, ir al inicio">
           <Logo />
         </Link>
         <ThemeToggle />
@@ -102,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 function MobileNavLink({ to, label, icon: Icon, active }: { to: string; label: string; icon: typeof Home; active: boolean }) {
   return (
     <Link to={to} aria-current={active ? 'page' : undefined} className={cn('focus-ring mx-auto flex flex-col items-center gap-1 rounded-lg px-3 py-1 text-[11px] font-medium text-muted-foreground transition-colors', active && 'text-foreground')}>
-      <Icon className={cn('size-5', active && 'text-ember-strong')} />
+      <Icon className={cn('size-5', active && 'text-brand-strong')} />
       {label}
     </Link>
   )

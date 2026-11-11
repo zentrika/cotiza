@@ -9,7 +9,7 @@ export const AlertDialogTrigger = AlertDialogPrimitive.Trigger
 export const AlertDialogContent = React.forwardRef<React.ElementRef<typeof AlertDialogPrimitive.Content>, React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>>(
   ({ className, ...props }, ref) => (
     <AlertDialogPrimitive.Portal>
-      <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[hsl(228_30%_6%/0.55)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+      <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[hsl(var(--zk-obsidian)/0.6)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
       <AlertDialogPrimitive.Content
         ref={ref}
         className={cn(

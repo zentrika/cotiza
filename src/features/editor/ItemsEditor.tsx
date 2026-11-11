@@ -52,7 +52,7 @@ export function ItemsEditor({ items, currency, errors, onAdd, onChange, onRemove
       <button
         type="button"
         onClick={() => setFocusId(onAdd())}
-        className="focus-ring mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-input text-sm font-medium text-muted-foreground transition-colors hover:border-ember/60 hover:bg-ember-soft/40 hover:text-foreground"
+        className="focus-ring mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-input text-sm font-medium text-muted-foreground transition-colors hover:border-brand/60 hover:bg-brand-soft/40 hover:text-foreground"
       >
         <Plus className="size-4" /> Agregar producto o servicio
       </button>

@@ -47,7 +47,7 @@ function ProfileCard() {
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <CardTitle>Perfil del negocio</CardTitle>
-          {form.status === 'ready' && (form.exists ? <Badge variant="secondary"><Check className="size-3" /> Configurado</Badge> : <Badge variant="ember">Pendiente</Badge>)}
+          {form.status === 'ready' && (form.exists ? <Badge variant="secondary"><Check className="size-3" /> Configurado</Badge> : <Badge variant="brand">Pendiente</Badge>)}
         </div>
         <CardDescription>Estos datos aparecen como emisor en cada cotización nueva. Las cotizaciones ya emitidas conservan los datos con los que se crearon.</CardDescription>
       </CardHeader>
@@ -123,10 +123,10 @@ function AppearanceCard() {
 
 function ThemeSwatch({ variant }: { variant: 'light' | 'dark' | 'system' }) {
   const half = (dark: boolean) => (
-    <div className={cn('flex h-full flex-1 flex-col gap-1 p-1.5', dark ? 'bg-[#141722]' : 'bg-[#f8f6f1]')}>
-      <div className={cn('h-1.5 w-3/4 rounded-sm', dark ? 'bg-[#eeebe3]' : 'bg-[#1a1d2b]')} />
+    <div className={cn('flex h-full flex-1 flex-col gap-1 p-1.5', dark ? 'bg-[hsl(var(--zk-obsidian))]' : 'bg-[hsl(220_33%_98%)]')}>
+      <div className={cn('h-1.5 w-3/4 rounded-sm', dark ? 'bg-[hsl(220_30%_94%)]' : 'bg-[hsl(var(--zk-obsidian))]')} />
       <div className={cn('h-1 w-1/2 rounded-sm', dark ? 'bg-white/20' : 'bg-black/15')} />
-      <div className="mt-auto h-1.5 w-1/3 rounded-sm bg-[hsl(16_80%_52%)]" />
+      <div className="mt-auto h-1.5 w-1/3 rounded-sm bg-brand-gradient" />
     </div>
   )
   return (

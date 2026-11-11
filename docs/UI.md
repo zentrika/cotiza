@@ -3,7 +3,8 @@
 ## Dirección visual: «papel y tinta»
 
 - **Superficies** cálidas tipo papel (`--background`, `--card`) y **tinta** azul-noche para el texto (`--foreground`, `--primary`).
-- **Acento cobre** (`--ember`, `--ember-strong`, `--ember-soft`), reservado para la marca, el foco, la numeración de secciones y el total. No se usa como relleno decorativo.
+- **Acento azul ZENTRIKA** (`--brand`, `--brand-strong`, `--brand-soft`, más `--brand-cyan`, `--brand-violet` y `--brand-gradient`), derivado de la paleta oficial `--zk-*` extraída de `public/brand/assets/*.svg`. Reservado para la marca, el foco, los estados activos, la numeración de secciones y el total. El gradiente oficial solo se usa en filetes decorativos finos.
+- **Marca**: `[Isotipo ZENTRIKA] Cotiza | by ZENTRIKA` con el isotipo oficial (`zentrika-isotipo.svg`) sin alterar; en la barra lateral, «by ZENTRIKA» va bajo el nombre del producto.
 - **Tipografía**: *Fraunces* (display, títulos y totales) + *Inter* (interfaz, con cifras tabulares `.tabular`). Ambas se empaquetan localmente con `@fontsource-variable`, sin llamadas a Google Fonts.
 - **Modo oscuro** con la clase `.dark` (claro, oscuro o según el sistema). La preferencia se guarda en `localStorage` (`cotiza:theme`) y un script en `index.html` la aplica antes del primer pintado.
 - La **vista previa del documento** usa siempre colores de papel, también en modo oscuro, porque representa lo que recibe el cliente.
@@ -47,7 +48,7 @@ src/hooks/useAsync  Carga con estados de carga, éxito y error
 
 ## Accesibilidad
 
-Enlace «Saltar al contenido», navegación con `aria-current`, foco visible con anillo cobre, primitivas Radix navegables con teclado, etiquetas en todos los campos y avisos `aria-live` para el total y el estado de guardado. Atajos: `/` enfoca la búsqueda del historial y `Ctrl/⌘ + S` guarda en el editor.
+Enlace «Saltar al contenido», navegación con `aria-current`, foco visible con anillo azul ZENTRIKA, primitivas Radix navegables con teclado, etiquetas en todos los campos y avisos `aria-live` para el total y el estado de guardado. Atajos: `/` enfoca la búsqueda del historial y `Ctrl/⌘ + S` guarda en el editor.
 
 ## Necesidades de contrato detectadas (sin modificar modelos)
 
